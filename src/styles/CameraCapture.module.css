@@ -1,0 +1,83 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  max-width: 28rem;
+  width: 100%;
+  margin: 1rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.videoContainer {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.video {
+  width: 100%;
+  border-radius: 0.5rem;
+}
+
+.canvas {
+  display: none;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.primaryBtn,
+.successBtn,
+.secondaryBtn {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.primaryBtn {
+  background-color: #2563eb;
+  color: white;
+}
+
+.primaryBtn:hover {
+  background-color: #1d4ed8;
+}
+
+.successBtn {
+  background-color: #16a34a;
+  color: white;
+}
+
+.successBtn:hover {
+  background-color: #15803d;
+}
+
+.secondaryBtn {
+  background-color: #6b7280;
+  color: white;
+}
+
+.secondaryBtn:hover {
+  background-color: #4b5563;
+}
