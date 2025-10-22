@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import { hashPassword } from '@/lib/auth';
+
+const bcrypt = require('bcryptjs');
 
 export async function POST(request) {
   try {
@@ -17,14 +18,14 @@ export async function POST(request) {
       );
     }
 
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       email,
       password: hashedPassword,
       name,
       phone,
-      role: 'USER',
+      role: 'USER', // ⚠️ UBAH: dari MARKETING jadi USER
     });
 
     return NextResponse.json({

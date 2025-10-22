@@ -15,7 +15,7 @@ export default function Home() {
       if (userData.role === 'ADMIN') {
         router.push('/admin');
       } else {
-        router.push('/marketing');
+        router.push('/user'); // ⚠️ UBAH: dari /marketing jadi /user
       }
     } else {
       router.push('/login');

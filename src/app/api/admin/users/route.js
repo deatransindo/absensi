@@ -7,7 +7,6 @@ import { getSessionUser, hashPassword } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-
 export async function GET(request) {
   try {
     const session = await getSessionUser(request);
@@ -17,11 +16,10 @@ export async function GET(request) {
 
     await connectDB();
 
-    const users = await User.find({ role: 'MARKETING' }).select(
-      '-password'
-    ).sort({ name: 1 });
+    const users = await User.find({ role: 'USER' }) // ⚠️ UBAH: dari MARKETING jadi USER
+      .select('-password')
+      .sort({ name: 1 });
 
-    // Get counts for each user
     const usersWithCounts = await Promise.all(
       users.map(async (user) => {
         const absensiCount = await Absensi.countDocuments({ userId: user._id });
@@ -72,7 +70,7 @@ export async function POST(request) {
       email,
       phone,
       password: hashedPassword,
-      role: 'MARKETING',
+      role: 'USER', // ⚠️ UBAH: dari MARKETING jadi USER
     });
 
     return NextResponse.json({

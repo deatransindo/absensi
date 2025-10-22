@@ -1,11 +1,27 @@
 import { Inter } from 'next/font/google';
-// import '@/styles/globals.css'; // Comment ini dulu
 
 const inter = Inter({ subsets: ['latin'] });
 
+// ⚠️ METADATA - Tanpa viewport
 export const metadata = {
-  title: 'Deatransindo',
-  description: 'Absensi Karyawan Lapangan',
+  title: 'Absensi User',
+  description: 'Aplikasi Absensi untuk User Lapangan',
+  
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+    ],
+  },
+  
+  manifest: '/manifest.json',
+};
+
+// ⚠️ VIEWPORT - Export terpisah (Next.js 14+ requirement)
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({ children }) {

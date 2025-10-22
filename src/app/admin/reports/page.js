@@ -30,7 +30,7 @@ function ReportsPage() {
 
     const userData = JSON.parse(user);
     if (userData.role !== 'ADMIN') {
-      router.push('/user');
+      router.push('/marketing');
       return;
     }
 

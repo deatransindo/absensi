@@ -39,7 +39,7 @@ export default function LoginPage() {
         if (data.user.role === 'ADMIN') {
           router.push('/admin');
         } else {
-          router.push('/marketing');
+          router.push('/user');
         }
       }, 500);
     } catch (error) {
@@ -67,9 +67,10 @@ export default function LoginPage() {
             <Image
               src="/Images/logo_dea.png"
               alt="Logo"
-              width={200}
-              height={70}
+              width={100}
+              height={100}
               priority
+              style={{ width: '200%', height: 'auto' }}
             />
           </div>
         </div>

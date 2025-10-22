@@ -27,7 +27,7 @@ export default function UsersManagementPage() {
 
     const userData = JSON.parse(user);
     if (userData.role !== 'ADMIN') {
-      router.push('/user');
+      router.push('/admin');
       return;
     }
 
@@ -134,7 +134,7 @@ export default function UsersManagementPage() {
         <div className={styles.headerSection}>
           <h1 className={styles.headerTitle}>User Management</h1>
           <button onClick={() => setShowModal(true)} className={styles.addBtn}>
-            Tambah Karyawan
+            Tambah User
           </button>
         </div>
 
@@ -208,7 +208,7 @@ export default function UsersManagementPage() {
       {showModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
-            <h2 className={styles.modalTitle}>Tambah Marketing Baru</h2>
+            <h2 className={styles.modalTitle}>Tambah User Baru</h2>
 
             <form onSubmit={handleAddUser}>
               <div className={styles.formGroup}>

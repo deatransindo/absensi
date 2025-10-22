@@ -19,8 +19,8 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['ADMIN', 'USER'],
-    default: 'USER',
+    enum: ['ADMIN', 'USER'], // ⚠️ UBAH: dari MARKETING jadi USER
+    default: 'USER', // ⚠️ UBAH: default jadi USER
   },
   isActive: {
     type: Boolean,

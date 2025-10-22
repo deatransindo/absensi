@@ -7,11 +7,11 @@ import AbsenButton from '@/components/AbsenButton';
 import toast, { Toaster } from 'react-hot-toast';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import styles from '@/styles/Marketing.module.css';
-import { Link } from 'lucide-react';
 import Image from 'next/image';
+import styles from '@/styles/Marketing.module.css'; // CSS tetap pakai yang sama
 
-export default function MarketingDashboard() {
+export default function UserDashboard() {
+  // ⚠️ UBAH: nama function dari MarketingDashboard
   const router = useRouter();
   const [todayAbsensi, setTodayAbsensi] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -57,7 +57,8 @@ export default function MarketingDashboard() {
 
       <div className={styles.contentContainer}>
         <div className={styles.header}>
-          <h2 className={styles.headerTitle}>Dashboard Karyawan</h2>
+          <h2 className={styles.headerTitle}>Dashboard User</h2>{' '}
+          {/* ⚠️ UBAH: teks */}
           <p className={styles.headerDate}>
             {format(new Date(), 'EEEE, dd MMMM yyyy', { locale: id })}
           </p>
@@ -112,25 +113,25 @@ export default function MarketingDashboard() {
         )}
 
         <div className={styles.menuGrid}>
-          <a href="/marketing/history" className={styles.menuCard}>
+          <a href="/user/history" className={styles.menuCard}>
             <Image
               src="/Icons/history.svg"
-              alt="reports"
+              alt="history"
               width={100}
               height={100}
               priority
             />
-            <p className={styles.menuTitle}>History</p>
+            <p className={styles.menuTitle}>Riwayat Absensi</p>
           </a>
-          <a href="/marketing/visits" className={styles.menuCard}>
+          <a href="/user/visits" className={styles.menuCard}>
             <Image
               src="/Icons/visit.svg"
-              alt="reports"
+              alt="visit"
               width={100}
               height={100}
               priority
             />
-            <p className={styles.menuTitle}>Visit</p>
+            <p className={styles.menuTitle}>Kunjungan</p>
           </a>
         </div>
       </div>
