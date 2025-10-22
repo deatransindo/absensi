@@ -118,3 +118,15 @@
   color: #1f2937;
   margin: 0;
 }
+
+.primaryBtn {
+  padding: 0.5rem;
+  border-color: #ffffff;
+  display: flex;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+  width: 100%;
+  display: flex;
+  background-color: #2563eb;
+  color: white;
+}

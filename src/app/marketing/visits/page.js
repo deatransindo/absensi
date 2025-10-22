@@ -121,11 +121,11 @@ export default function VisitsPage() {
       <div className={styles.contentContainer}>
         <div className={styles.headerSection}>
           <div>
-            <h1 className={styles.headerTitle}>Kunjungan Customer</h1>
+            <h1 className={styles.headerTitle}>Customer Visit</h1>
             <p className={styles.headerSubtitle}>Catat setiap kunjungan Anda</p>
           </div>
           <button onClick={() => setShowModal(true)} className={styles.addBtn}>
-            + Tambah Kunjungan
+            Tambah Kunjungan
           </button>
         </div>
 
@@ -141,8 +141,12 @@ export default function VisitsPage() {
               <div key={visit._id} className={styles.visitCard}>
                 <div className={styles.visitHeader}>
                   <div>
-                    <h3 className={styles.customerName}>{visit.customerName}</h3>
-                    <p className={styles.customerPhone}>{visit.customerPhone}</p>
+                    <h3 className={styles.customerName}>
+                      {visit.customerName}
+                    </h3>
+                    <p className={styles.customerPhone}>
+                      {visit.customerPhone}
+                    </p>
                   </div>
                   <span className={getResultClass(visit.visitResult)}>
                     {visit.visitResult}
@@ -218,7 +222,10 @@ export default function VisitsPage() {
                 <textarea
                   value={formData.customerAddress}
                   onChange={(e) =>
-                    setFormData({ ...formData, customerAddress: e.target.value })
+                    setFormData({
+                      ...formData,
+                      customerAddress: e.target.value,
+                    })
                   }
                   className={styles.textarea}
                   required

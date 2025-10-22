@@ -49,8 +49,7 @@ export default function HistoryPage() {
     <div className={styles.pageContainer}>
       <Toaster position="top-center" />
       <Navbar />
-
-      <div className={styles.contentContainer}>
+       <div className={styles.contentContainer}>
         <div className={styles.header}>
           <h2 className={styles.headerTitle}>Riwayat Absensi</h2>
           <p className={styles.headerSubtitle}>30 hari terakhir</p>

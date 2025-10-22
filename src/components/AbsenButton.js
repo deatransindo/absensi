@@ -90,14 +90,14 @@ export default function AbsenButton({ type, onSuccess }) {
           </div>
         ) : (
           <button onClick={() => setShowCamera(true)} className={styles.cameraBtn}>
-            📷 Ambil Foto Selfie
+            📷 Take Selfie
           </button>
         )}
       </div>
 
       {type === 'checkout' && (
         <div className={styles.reportSection}>
-          <label className={styles.label}>Laporan Harian</label>
+          <label className={styles.label}>Catatan :</label>
           <textarea
             value={dailyReport}
             onChange={(e) => setDailyReport(e.target.value)}
@@ -112,7 +112,7 @@ export default function AbsenButton({ type, onSuccess }) {
         disabled={loading || !photo || !location}
         className={styles.submitBtn}
       >
-        {loading ? 'Memproses...' : type === 'checkin' ? 'Check In Sekarang' : 'Check Out Sekarang'}
+        {loading ? 'Processing...' : type === 'checkin' ? 'Check In Now' : 'Check Out Now'}
       </button>
 
       {showCamera && (

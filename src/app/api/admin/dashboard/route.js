@@ -26,7 +26,7 @@ export async function GET(request) {
 
     // Get all marketing users
     const allMarketing = await User.find(
-      { role: 'MARKETING', isActive: true },
+      { role: 'USER', isActive: true },
       'name email'
     );
 

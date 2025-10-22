@@ -27,7 +27,7 @@ export default function UsersManagementPage() {
 
     const userData = JSON.parse(user);
     if (userData.role !== 'ADMIN') {
-      router.push('/marketing');
+      router.push('/user');
       return;
     }
 
@@ -132,9 +132,9 @@ export default function UsersManagementPage() {
 
       <div className={styles.contentContainer}>
         <div className={styles.headerSection}>
-          <h1 className={styles.headerTitle}>Kelola Marketing</h1>
+          <h1 className={styles.headerTitle}>User Management</h1>
           <button onClick={() => setShowModal(true)} className={styles.addBtn}>
-            + Tambah Marketing
+            Tambah Karyawan
           </button>
         </div>
 
@@ -152,7 +152,7 @@ export default function UsersManagementPage() {
                     <th>Absensi</th>
                     <th>Kunjungan</th>
                     <th>Status</th>
-                    <th>Aksi</th>
+                    <th>Delete</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -161,13 +161,21 @@ export default function UsersManagementPage() {
                       <td className={styles.nameCell}>{user.name}</td>
                       <td>{user.email}</td>
                       <td>{user.phone || '-'}</td>
-                      <td className={styles.centerCell}>{user._count.absensi}</td>
-                      <td className={styles.centerCell}>{user._count.visits}</td>
+                      <td className={styles.centerCell}>
+                        {user._count.absensi}
+                      </td>
+                      <td className={styles.centerCell}>
+                        {user._count.visits}
+                      </td>
                       <td className={styles.centerCell}>
                         <button
-                          onClick={() => toggleUserStatus(user._id, user.isActive)}
+                          onClick={() =>
+                            toggleUserStatus(user._id, user.isActive)
+                          }
                           className={
-                            user.isActive ? styles.badgeActive : styles.badgeInactive
+                            user.isActive
+                              ? styles.badgeActive
+                              : styles.badgeInactive
                           }
                         >
                           {user.isActive ? 'Aktif' : 'Non-Aktif'}
@@ -187,7 +195,9 @@ export default function UsersManagementPage() {
               </table>
 
               {users.length === 0 && (
-                <p className={styles.emptyState}>Belum ada marketing terdaftar</p>
+                <p className={styles.emptyState}>
+                  Belum ada karyawan terdaftar
+                </p>
               )}
             </div>
           </div>
@@ -206,7 +216,9 @@ export default function UsersManagementPage() {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className={styles.input}
                   required
                 />
@@ -217,7 +229,9 @@ export default function UsersManagementPage() {
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className={styles.input}
                   required
                 />
@@ -228,7 +242,9 @@ export default function UsersManagementPage() {
                 <input
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
                   className={styles.input}
                 />
               </div>
@@ -255,7 +271,12 @@ export default function UsersManagementPage() {
                   type="button"
                   onClick={() => {
                     setShowModal(false);
-                    setFormData({ name: '', email: '', phone: '', password: '' });
+                    setFormData({
+                      name: '',
+                      email: '',
+                      phone: '',
+                      password: '',
+                    });
                   }}
                   className={styles.cancelBtn}
                 >

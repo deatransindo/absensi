@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import toast, { Toaster } from 'react-hot-toast';
 import styles from '@/styles/Admin.module.css';
+import Image from 'next/image';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function AdminDashboard() {
 
     const userData = JSON.parse(user);
     if (userData.role !== 'ADMIN') {
-      router.push('/marketing');
+      router.push('/user');
       return;
     }
 
@@ -66,7 +67,7 @@ export default function AdminDashboard() {
 
       <div className={styles.contentContainer}>
         <div className={styles.header}>
-          <h1 className={styles.headerTitle}>Admin Dashboard</h1>
+          <h1 className={styles.headerTitle}>Dashboard Admin</h1>
           <p className={styles.headerDate}>
             {format(new Date(), 'EEEE, dd MMMM yyyy', { locale: id })}
           </p>
@@ -75,19 +76,19 @@ export default function AdminDashboard() {
         {/* Statistics Cards */}
         <div className={styles.statsGrid}>
           <div className={styles.statCard}>
-            <p className={styles.statLabel}>Total Marketing</p>
+            <p className={styles.statLabel}>Total Karyawan</p>
             <p className={styles.statValue} style={{ color: '#2563eb' }}>
               {data?.stats.totalMarketing}
             </p>
           </div>
           <div className={styles.statCard}>
-            <p className={styles.statLabel}>Sudah Check-in</p>
+            <p className={styles.statLabel}>Check-in</p>
             <p className={styles.statValue} style={{ color: '#16a34a' }}>
               {data?.stats.checkedIn}
             </p>
           </div>
           <div className={styles.statCard}>
-            <p className={styles.statLabel}>Sudah Check-out</p>
+            <p className={styles.statLabel}>Check-out</p>
             <p className={styles.statValue} style={{ color: '#9333ea' }}>
               {data?.stats.checkedOut}
             </p>
@@ -145,10 +146,12 @@ export default function AdminDashboard() {
                       </td>
                       <td>
                         {!absensi.checkInTime && (
-                          <span className={styles.badgeGray}>Belum Check-in</span>
+                          <span className={styles.badgeGray}>
+                            Belum Check-in
+                          </span>
                         )}
                         {absensi.checkInTime && !absensi.checkOutTime && (
-                          <span className={styles.badgeYellow}>Sedang Kerja</span>
+                          <span className={styles.badgeYellow}>Working</span>
                         )}
                         {absensi.checkOutTime && (
                           <span className={styles.badgeGreen}>Selesai</span>
@@ -165,19 +168,40 @@ export default function AdminDashboard() {
         {/* Quick Actions */}
         <div className={styles.actionsGrid}>
           <a href="/admin/reports" className={styles.actionCard}>
-            <div className={styles.actionIcon}>📊</div>
-            <p className={styles.actionTitle}>Laporan</p>
-            <p className={styles.actionSubtitle}>Lihat laporan lengkap</p>
+            <div>
+              <Image
+                src="/Icons/reports.svg"
+                alt="reports"
+                width={100}
+                height={100}
+                priority
+              />
+            </div>
+            <p className={styles.actionTitle}>Reports</p>
           </a>
           <a href="/admin/users" className={styles.actionCard}>
-            <div className={styles.actionIcon}>👥</div>
-            <p className={styles.actionTitle}>Kelola User</p>
-            <p className={styles.actionSubtitle}>Tambah/edit marketing</p>
+            <div>
+              <Image
+                src="/Icons/user_management.svg"
+                alt="reports"
+                width={100}
+                height={100}
+                priority
+              />
+            </div>
+            <p className={styles.actionTitle}>User</p>
           </a>
           <button onClick={fetchDashboard} className={styles.actionCard}>
-            <div className={styles.actionIcon}>🔄</div>
-            <p className={styles.actionTitle}>Refresh Data</p>
-            <p className={styles.actionSubtitle}>Perbarui tampilan</p>
+            <div>
+              <Image
+                src="/Icons/refresh.svg"
+                alt="reports"
+                width={100}
+                height={100}
+                priority
+              />
+            </div>
+            <p className={styles.actionTitle}>Refresh</p>
           </button>
         </div>
       </div>

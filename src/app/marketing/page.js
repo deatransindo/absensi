@@ -8,6 +8,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import styles from '@/styles/Marketing.module.css';
+import { Link } from 'lucide-react';
+import Image from 'next/image';
 
 export default function MarketingDashboard() {
   const router = useRouter();
@@ -55,7 +57,7 @@ export default function MarketingDashboard() {
 
       <div className={styles.contentContainer}>
         <div className={styles.header}>
-          <h2 className={styles.headerTitle}>Dashboard Marketing</h2>
+          <h2 className={styles.headerTitle}>Dashboard Karyawan</h2>
           <p className={styles.headerDate}>
             {format(new Date(), 'EEEE, dd MMMM yyyy', { locale: id })}
           </p>
@@ -72,9 +74,12 @@ export default function MarketingDashboard() {
             {hasCheckedIn && !hasCheckedOut && (
               <div className={styles.absensiContainer}>
                 <div className={styles.successAlert}>
-                  <p className={styles.successText}>✓ Anda sudah check-in hari ini</p>
+                  <p className={styles.successText}>
+                    ✓ Anda sudah check-in hari ini
+                  </p>
                   <p className={styles.successTime}>
-                    Check-in: {format(new Date(todayAbsensi.checkInTime), 'HH:mm')}
+                    Check-in:{' '}
+                    {format(new Date(todayAbsensi.checkInTime), 'HH:mm')}
                   </p>
                 </div>
 
@@ -84,13 +89,21 @@ export default function MarketingDashboard() {
 
             {hasCheckedOut && (
               <div className={styles.completedAlert}>
-                <p className={styles.completedTitle}>✓ Absensi hari ini sudah lengkap</p>
+                <p className={styles.completedTitle}>
+                  ✓ Absensi hari ini sudah lengkap
+                </p>
                 <div className={styles.completedInfo}>
-                  <p>Check-in: {format(new Date(todayAbsensi.checkInTime), 'HH:mm')}</p>
-                  <p>Check-out: {format(new Date(todayAbsensi.checkOutTime), 'HH:mm')}</p>
                   <p>
-                    Durasi kerja: {Math.floor(todayAbsensi.workDuration / 60)} jam{' '}
-                    {todayAbsensi.workDuration % 60} menit
+                    Check-in:{' '}
+                    {format(new Date(todayAbsensi.checkInTime), 'HH:mm')}
+                  </p>
+                  <p>
+                    Check-out:{' '}
+                    {format(new Date(todayAbsensi.checkOutTime), 'HH:mm')}
+                  </p>
+                  <p>
+                    Durasi kerja: {Math.floor(todayAbsensi.workDuration / 60)}{' '}
+                    jam {todayAbsensi.workDuration % 60} menit
                   </p>
                 </div>
               </div>
@@ -100,12 +113,24 @@ export default function MarketingDashboard() {
 
         <div className={styles.menuGrid}>
           <a href="/marketing/history" className={styles.menuCard}>
-            <div className={styles.menuIcon}>📋</div>
-            <p className={styles.menuTitle}>Riwayat Absensi</p>
+            <Image
+              src="/Icons/history.svg"
+              alt="reports"
+              width={100}
+              height={100}
+              priority
+            />
+            <p className={styles.menuTitle}>History</p>
           </a>
           <a href="/marketing/visits" className={styles.menuCard}>
-            <div className={styles.menuIcon}>📍</div>
-            <p className={styles.menuTitle}>Kunjungan</p>
+          <Image
+              src="/Icons/visit.svg"
+              alt="reports"
+              width={100}
+              height={100}
+              priority
+            />
+            <p className={styles.menuTitle}>Visit</p>
           </a>
         </div>
       </div>

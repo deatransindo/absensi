@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import styles from '@/styles/Navbar.module.css';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Navbar() {
   const router = useRouter();
@@ -25,7 +27,13 @@ export default function Navbar() {
     <nav className={styles.navbar}>
       <div className={styles.container}>
         <div className={styles.content}>
-          <h1 className={styles.title}>Absensi Marketing</h1>
+          <Image
+            src="/Images/logo_dea2.png"
+            alt="reports"
+            width={140}
+            height={50}
+            priority
+          />
           <div className={styles.rightSection}>
             {user && (
               <>

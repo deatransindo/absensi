@@ -48,7 +48,7 @@ export default function LocationCapture({ onLocationCapture }) {
         disabled={loading}
         className={location ? styles.btnSuccess : styles.btnPrimary}
       >
-        {loading ? 'Mengambil Lokasi...' : location ? '✓ Lokasi Terdeteksi' : 'Dapatkan Lokasi'}
+        {loading ? 'Getting Location...' : location ? '✓ Location Detect' : 'Get Location'}
       </button>
       {location && (
         <p className={styles.locationText}>

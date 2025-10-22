@@ -30,7 +30,7 @@ function ReportsPage() {
 
     const userData = JSON.parse(user);
     if (userData.role !== 'ADMIN') {
-      router.push('/marketing');
+      router.push('/user');
       return;
     }
 
@@ -143,19 +143,21 @@ function ReportsPage() {
       <Navbar />
 
       <div className={styles.contentContainer}>
-        <h1 className={styles.headerTitle}>Laporan Absensi</h1>
+        <h1 className={styles.headerTitle}>Absensi Reports</h1>
 
         {/* Filters */}
         <div className={styles.filterSection}>
           <div className={styles.filterGrid}>
             <div className={styles.filterGroup}>
-              <label className={styles.label}>Marketing</label>
+              <label className={styles.label}>Karyawan</label>
               <select
                 value={filters.userId}
-                onChange={(e) => setFilters({ ...filters, userId: e.target.value })}
+                onChange={(e) =>
+                  setFilters({ ...filters, userId: e.target.value })
+                }
                 className={styles.select}
               >
-                <option value="">Semua Marketing</option>
+                <option value="">Semua Karyawan</option>
                 {users.map((user) => (
                   <option key={user._id} value={user._id}>
                     {user.name}
@@ -204,7 +206,7 @@ function ReportsPage() {
             <div className={styles.filterGroup}>
               <label className={styles.label}>&nbsp;</label>
               <button onClick={fetchReports} className={styles.filterBtn}>
-                Tampilkan
+                Show
               </button>
             </div>
           </div>
@@ -246,7 +248,7 @@ function ReportsPage() {
             className={styles.exportBtn}
             disabled={absensi.length === 0}
           >
-            📥 Export ke CSV
+            Export ke CSV
           </button>
         </div>
 
@@ -255,7 +257,9 @@ function ReportsPage() {
           {loading ? (
             <div className={styles.loading}>Loading...</div>
           ) : absensi.length === 0 ? (
-            <p className={styles.emptyState}>Tidak ada data untuk periode ini</p>
+            <p className={styles.emptyState}>
+              Tidak ada data untuk periode ini
+            </p>
           ) : (
             <div className={styles.tableWrapper}>
               <table className={styles.table}>
@@ -273,9 +277,13 @@ function ReportsPage() {
                   {absensi.map((item) => (
                     <tr key={item._id}>
                       <td>
-                        {format(new Date(item.tanggal), 'dd MMM yyyy', { locale: id })}
+                        {format(new Date(item.tanggal), 'dd MMM yyyy', {
+                          locale: id,
+                        })}
                       </td>
-                      <td className={styles.nameCell}>{item.userId?.name || 'N/A'}</td>
+                      <td className={styles.nameCell}>
+                        {item.userId?.name || 'N/A'}
+                      </td>
                       <td>
                         {item.checkInTime
                           ? format(new Date(item.checkInTime), 'HH:mm')

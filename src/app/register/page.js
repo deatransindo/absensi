@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import styles from '@/styles/Login.module.css';
+import Image from 'next/image';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function RegisterPage() {
     confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,6 +27,11 @@ export default function RegisterPage() {
 
     if (formData.password !== formData.confirmPassword) {
       toast.error('Password tidak cocok');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast.error('Password minimal 6 karakter');
       return;
     }
 
@@ -60,80 +67,124 @@ export default function RegisterPage() {
   return (
     <div className={styles.container}>
       <Toaster position="top-center" />
-      <div className={styles.card}>
-        <h1 className={styles.title}>Daftar Akun</h1>
 
-        <form onSubmit={handleRegister}>
+      <div className={styles.bgAnimation}>
+        <div className={styles.circle1}></div>
+        <div className={styles.circle2}></div>
+        <div className={styles.circle3}></div>
+      </div>
+
+      <div className={styles.card}>
+        {/* <div className={styles.logoContainer}>
+          <div className={styles.logoWrapper}>
+            <Image src="/Images/logo_dea.png" alt="Logo" width={180} height={50} priority />
+          </div>
+        </div> */}
+
+        <h1 className={styles.title}>Register</h1>
+        <form onSubmit={handleRegister} className={styles.form}>
           <div className={styles.formGroup}>
-            <label className={styles.label}>Nama Lengkap</label>
+            <label className={styles.label}>
+              <span className={styles.labelIcon}>👤</span>
+              Nama Lengkap
+            </label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               className={styles.input}
+              placeholder="Nama lengkap Anda"
               required
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Email</label>
+            <label className={styles.label}>
+              <span className={styles.labelIcon}>📧</span>
+              Email
+            </label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               className={styles.input}
+              placeholder="nama@example.com"
               required
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Nomor HP</label>
+            <label className={styles.label}>
+              <span className={styles.labelIcon}>📱</span>
+              Nomor HP
+            </label>
             <input
               type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
               className={styles.input}
+              placeholder="08123456789"
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className={styles.input}
-              required
-            />
+            <label className={styles.label}>
+              <span className={styles.labelIcon}>🔒</span>
+              Password
+            </label>
+            <div className={styles.passwordWrapper}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className={styles.input}
+                placeholder="Minimal 6 karakter"
+                required
+                minLength={6}
+              />
+            </div>
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Konfirmasi Password</label>
+            <label className={styles.label}>
+              <span className={styles.labelIcon}>🔒</span>
+              Konfirmasi Password
+            </label>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
               className={styles.input}
+              placeholder="Ketik ulang password"
               required
             />
           </div>
 
           <button type="submit" disabled={loading} className={styles.submitBtn}>
-            {loading ? 'Memproses...' : 'Daftar'}
+            {loading ? <span className={styles.spinner}></span> : 'Daftar'}
           </button>
         </form>
 
-        <p className={styles.footer}>
-          Sudah punya akun?{' '}
-          <a href="/login" className={styles.link}>
-            Login di sini
-          </a>
-        </p>
+        <div className={styles.footer}>
+          <p className={styles.footerText}>
+            Sudah punya akun?{' '}
+            <a href="/login" className={styles.link}>
+              Login di sini
+            </a>
+          </p>
+        </div>
+
+        <div className={styles.decorTop}></div>
+        <div className={styles.decorBottom}></div>
+      </div>
+
+      <div className={styles.appInfo}>
+        <p>@deatranssolusindo v1.0</p>
       </div>
     </div>
   );

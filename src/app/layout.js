@@ -4,8 +4,8 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Absensi Marketing',
-  description: 'Aplikasi Absensi untuk Marketing Lapangan',
+  title: 'Deatransindo',
+  description: 'Absensi Karyawan Lapangan',
 };
 
 export default function RootLayout({ children }) {
