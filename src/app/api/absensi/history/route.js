@@ -3,6 +3,9 @@ import connectDB from '@/lib/mongodb';
 import Absensi from '@/models/Absensi';
 import { getSessionUser } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request) {
   try {
     const session = await getSessionUser(request);

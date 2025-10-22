@@ -3,6 +3,9 @@ import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import { getSessionUser, hashPassword } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function PATCH(request, { params }) {
   try {
     const session = await getSessionUser(request);

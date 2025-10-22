@@ -5,6 +5,9 @@ import Absensi from '@/models/Absensi';
 import Visit from '@/models/Visit';
 import { getSessionUser, hashPassword } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request) {
   try {
     const session = await getSessionUser(request);

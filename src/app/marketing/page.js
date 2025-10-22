@@ -123,7 +123,7 @@ export default function MarketingDashboard() {
             <p className={styles.menuTitle}>History</p>
           </a>
           <a href="/marketing/visits" className={styles.menuCard}>
-          <Image
+            <Image
               src="/Icons/visit.svg"
               alt="reports"
               width={100}

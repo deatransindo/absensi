@@ -3,6 +3,9 @@ import connectDB from '@/lib/mongodb';
 import Visit from '@/models/Visit';
 import { getSessionUser } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request) {
   try {
     const session = await getSessionUser(request);
