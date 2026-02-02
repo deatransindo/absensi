@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
+import PageLayout from '@/components/PageLayout';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import toast, { Toaster } from 'react-hot-toast';
@@ -14,12 +14,23 @@ function ReportsPage() {
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  const [filterMode, setFilterMode] = useState('monthYear'); // 'monthYear' or 'dateRange'
   const [filters, setFilters] = useState({
     userId: '',
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
+    startDate: '',
+    endDate: '',
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(absensi.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = absensi.slice(startIndex, endIndex);
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -62,6 +73,7 @@ function ReportsPage() {
 
   const fetchReports = async () => {
     setLoading(true);
+    setCurrentPage(1); // Reset to first page when fetching new data
     try {
       const token = localStorage.getItem('token');
 
@@ -71,13 +83,25 @@ function ReportsPage() {
         return;
       }
 
-      const params = new URLSearchParams({
-        month: filters.month.toString(),
-        year: filters.year.toString(),
-      });
+      const params = new URLSearchParams();
 
+      // Add user filter if selected
       if (filters.userId) {
         params.append('userId', filters.userId);
+      }
+
+      // Add date filters based on filter mode
+      if (filterMode === 'dateRange') {
+        if (filters.startDate) {
+          params.append('startDate', filters.startDate);
+        }
+        if (filters.endDate) {
+          params.append('endDate', filters.endDate);
+        }
+      } else {
+        // Month/Year mode
+        params.append('month', filters.month.toString());
+        params.append('year', filters.year.toString());
       }
 
       const response = await fetch(`/api/admin/reports?${params}`, {
@@ -122,6 +146,62 @@ function ReportsPage() {
     toast.success('Data berhasil diexport');
   };
 
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Sesi berakhir, silakan login ulang');
+        router.push('/login');
+        return;
+      }
+
+      toast.loading('Sedang membuat file Excel dengan foto selfie...');
+
+      const params = new URLSearchParams();
+
+      if (filters.userId) {
+        params.append('userId', filters.userId);
+      }
+
+      if (filterMode === 'dateRange') {
+        if (filters.startDate) {
+          params.append('startDate', filters.startDate);
+        }
+        if (filters.endDate) {
+          params.append('endDate', filters.endDate);
+        }
+      } else {
+        params.append('month', filters.month.toString());
+        params.append('year', filters.year.toString());
+      }
+
+      const response = await fetch(`/api/admin/reports/export?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to export');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Laporan_Absensi_${filters.year}_${filters.month}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      toast.dismiss();
+      toast.success('Excel berhasil diexport dengan foto selfie!');
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Gagal export Excel: ' + error.message);
+      console.error('Export error:', error);
+    }
+  };
+
   const monthNames = [
     'Januari',
     'Februari',
@@ -137,19 +217,89 @@ function ReportsPage() {
     'Desember',
   ];
 
-  return (
-    <div className={styles.pageContainer}>
-      <Toaster position="top-center" />
-      <Navbar />
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'HADIR':
+        return '#10b981';
+      case 'IZIN':
+        return '#3b82f6';
+      case 'SAKIT':
+        return '#f59e0b';
+      case 'ALPHA':
+        return '#ef4444';
+      default:
+        return '#6b7280';
+    }
+  };
 
-      <div className={styles.contentContainer}>
-        <h1 className={styles.headerTitle}>Absensi Reports</h1>
+  const getStatusBgColor = (status) => {
+    switch (status) {
+      case 'HADIR':
+        return '#d1fae5';
+      case 'IZIN':
+        return '#dbeafe';
+      case 'SAKIT':
+        return '#fef3c7';
+      case 'ALPHA':
+        return '#fee2e2';
+      default:
+        return '#f3f4f6';
+    }
+  };
+
+  const paginationPages = [];
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    paginationPages.push(i);
+  }
+
+  return (
+    <PageLayout>
+      <div className={styles.pageContainer}>
+        <Toaster position="top-center" />
+
+        <div className={styles.contentContainer}>
+        {/* Header Section */}
+        <div className={styles.headerSection}>
+          <div className={styles.headerContent}>
+            <h1 className={styles.headerTitle}>Laporan Absensi</h1>
+            <p className={styles.headerSubtitle}>
+              Kelola dan analisis data kehadiran karyawan dengan mudah
+            </p>
+          </div>
+          <div className={styles.headerIllustration}>📊</div>
+        </div>
 
         {/* Filters */}
         <div className={styles.filterSection}>
+          {/* Filter Mode Toggle */}
+          <div className={styles.filterModeToggle}>
+            <button
+              className={`${styles.toggleBtn} ${filterMode === 'monthYear' ? styles.toggleBtnActive : ''}`}
+              onClick={() => setFilterMode('monthYear')}
+            >
+              <span className={styles.toggleIcon}>📅</span>
+              Bulan & Tahun
+            </button>
+            <button
+              className={`${styles.toggleBtn} ${filterMode === 'dateRange' ? styles.toggleBtnActive : ''}`}
+              onClick={() => setFilterMode('dateRange')}
+            >
+              <span className={styles.toggleIcon}>📆</span>
+              Rentang Tanggal
+            </button>
+          </div>
+
           <div className={styles.filterGrid}>
             <div className={styles.filterGroup}>
-              <label className={styles.label}>Karyawan</label>
+              <label className={styles.label}>👤 Karyawan</label>
               <select
                 value={filters.userId}
                 onChange={(e) =>
@@ -166,47 +316,77 @@ function ReportsPage() {
               </select>
             </div>
 
-            <div className={styles.filterGroup}>
-              <label className={styles.label}>Bulan</label>
-              <select
-                value={filters.month}
-                onChange={(e) =>
-                  setFilters({ ...filters, month: parseInt(e.target.value) })
-                }
-                className={styles.select}
-              >
-                {monthNames.map((month, index) => (
-                  <option key={index} value={index + 1}>
-                    {month}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {filterMode === 'monthYear' ? (
+              <>
+                <div className={styles.filterGroup}>
+                  <label className={styles.label}>📆 Bulan</label>
+                  <select
+                    value={filters.month}
+                    onChange={(e) =>
+                      setFilters({ ...filters, month: parseInt(e.target.value) })
+                    }
+                    className={styles.select}
+                  >
+                    {monthNames.map((month, index) => (
+                      <option key={index} value={index + 1}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <div className={styles.filterGroup}>
-              <label className={styles.label}>Tahun</label>
-              <select
-                value={filters.year}
-                onChange={(e) =>
-                  setFilters({ ...filters, year: parseInt(e.target.value) })
-                }
-                className={styles.select}
-              >
-                {Array.from({ length: 5 }, (_, i) => {
-                  const year = new Date().getFullYear() - 2 + i;
-                  return (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
+                <div className={styles.filterGroup}>
+                  <label className={styles.label}>📅 Tahun</label>
+                  <select
+                    value={filters.year}
+                    onChange={(e) =>
+                      setFilters({ ...filters, year: parseInt(e.target.value) })
+                    }
+                    className={styles.select}
+                  >
+                    {Array.from({ length: 5 }, (_, i) => {
+                      const year = new Date().getFullYear() - 2 + i;
+                      return (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.filterGroup}>
+                  <label className={styles.label}>🗓️ Tanggal Mulai</label>
+                  <input
+                    type="date"
+                    value={filters.startDate}
+                    onChange={(e) =>
+                      setFilters({ ...filters, startDate: e.target.value })
+                    }
+                    className={styles.select}
+                  />
+                </div>
+
+                <div className={styles.filterGroup}>
+                  <label className={styles.label}>🗓️ Tanggal Selesai</label>
+                  <input
+                    type="date"
+                    value={filters.endDate}
+                    onChange={(e) =>
+                      setFilters({ ...filters, endDate: e.target.value })
+                    }
+                    className={styles.select}
+                  />
+                </div>
+              </>
+            )}
 
             <div className={styles.filterGroup}>
               <label className={styles.label}>&nbsp;</label>
               <button onClick={fetchReports} className={styles.filterBtn}>
-                Show
+                🔍 Tampilkan
               </button>
             </div>
           </div>
@@ -215,116 +395,267 @@ function ReportsPage() {
         {/* Statistics */}
         {stats && (
           <div className={styles.statsGrid}>
-            <div className={styles.statCard}>
-              <p className={styles.statLabel}>Total Hari</p>
-              <p className={styles.statValue}>{stats.totalDays}</p>
+            <div className={`${styles.statCard} ${styles.statCardHadir}`}>
+              <div className={styles.statIcon}>✓</div>
+              <div className={styles.statInfo}>
+                <p className={styles.statLabel}>Hadir</p>
+                <p className={styles.statValue}>{stats.hadir}</p>
+                <p className={styles.statPercent}>
+                  {Math.round((stats.hadir / stats.totalDays) * 100)}%
+                </p>
+              </div>
             </div>
-            <div className={styles.statCard}>
-              <p className={styles.statLabel}>Hadir</p>
-              <p className={styles.statValue} style={{ color: '#16a34a' }}>
-                {stats.hadir}
-              </p>
+            <div className={`${styles.statCard} ${styles.statCardTerlambat}`}>
+              <div className={styles.statIcon}>⏱</div>
+              <div className={styles.statInfo}>
+                <p className={styles.statLabel}>Terlambat</p>
+                <p className={styles.statValue}>{stats.lateCheckins}</p>
+                <p className={styles.statPercent}>
+                  {Math.round((stats.lateCheckins / stats.totalDays) * 100)}%
+                </p>
+              </div>
             </div>
-            <div className={styles.statCard}>
-              <p className={styles.statLabel}>Terlambat</p>
-              <p className={styles.statValue} style={{ color: '#eab308' }}>
-                {stats.lateCheckins}
-              </p>
+            <div className={`${styles.statCard} ${styles.statCardIzin}`}>
+              <div className={styles.statIcon}>📋</div>
+              <div className={styles.statInfo}>
+                <p className={styles.statLabel}>Izin</p>
+                <p className={styles.statValue}>{stats.izin}</p>
+                <p className={styles.statPercent}>
+                  {Math.round((stats.izin / stats.totalDays) * 100)}%
+                </p>
+              </div>
             </div>
-            <div className={styles.statCard}>
-              <p className={styles.statLabel}>Rata-rata Kerja</p>
-              <p className={styles.statValue} style={{ color: '#9333ea' }}>
-                {Math.floor(stats.avgWorkDuration / 60)}j{' '}
-                {Math.floor(stats.avgWorkDuration % 60)}m
-              </p>
+            <div className={`${styles.statCard} ${styles.statCardSakit}`}>
+              <div className={styles.statIcon}>🤒</div>
+              <div className={styles.statInfo}>
+                <p className={styles.statLabel}>Sakit</p>
+                <p className={styles.statValue}>{stats.sakit}</p>
+                <p className={styles.statPercent}>
+                  {Math.round((stats.sakit / stats.totalDays) * 100)}%
+                </p>
+              </div>
+            </div>
+            <div className={`${styles.statCard} ${styles.statCardRata}`}>
+              <div className={styles.statIcon}>⏳</div>
+              <div className={styles.statInfo}>
+                <p className={styles.statLabel}>Durasi Kerja</p>
+                <p className={styles.statValue}>
+                  {Math.floor(stats.avgWorkDuration / 60)}h
+                </p>
+                <p className={styles.statPercent}>
+                  {Math.floor(stats.avgWorkDuration % 60)}m
+                </p>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Export Button */}
+        {/* Export Buttons */}
         <div className={styles.exportSection}>
           <button
-            onClick={exportToCSV}
+            onClick={exportToExcel}
             className={styles.exportBtn}
             disabled={absensi.length === 0}
           >
-            Export ke CSV
+            📊 Export ke Excel
+          </button>
+          <button
+            onClick={exportToCSV}
+            className={styles.exportBtnSecondary}
+            disabled={absensi.length === 0}
+          >
+            📄 Export ke CSV
           </button>
         </div>
 
         {/* Data Table */}
-        <div className={styles.tableContainer}>
+        <div className={styles.tableSection}>
           {loading ? (
-            <div className={styles.loading}>Loading...</div>
-          ) : absensi.length === 0 ? (
-            <p className={styles.emptyState}>
-              Tidak ada data untuk periode ini
-            </p>
-          ) : (
-            <div className={styles.tableWrapper}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Tanggal</th>
-                    <th>Nama</th>
-                    <th>Check In</th>
-                    <th>Check Out</th>
-                    <th>Durasi</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {absensi.map((item) => (
-                    <tr key={item._id}>
-                      <td>
-                        {format(new Date(item.tanggal), 'dd MMM yyyy', {
-                          locale: id,
-                        })}
-                      </td>
-                      <td className={styles.nameCell}>
-                        {item.userId?.name || 'N/A'}
-                      </td>
-                      <td>
-                        {item.checkInTime
-                          ? format(new Date(item.checkInTime), 'HH:mm')
-                          : '-'}
-                      </td>
-                      <td>
-                        {item.checkOutTime
-                          ? format(new Date(item.checkOutTime), 'HH:mm')
-                          : '-'}
-                      </td>
-                      <td>
-                        {item.workDuration
-                          ? `${Math.floor(item.workDuration / 60)}j ${
-                              item.workDuration % 60
-                            }m`
-                          : '-'}
-                      </td>
-                      <td>
-                        <span
-                          className={
-                            item.status === 'HADIR'
-                              ? styles.badgeGreen
-                              : item.status === 'IZIN'
-                              ? styles.badgeBlue
-                              : item.status === 'SAKIT'
-                              ? styles.badgeYellow
-                              : styles.badgeRed
-                          }
-                        >
-                          {item.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className={styles.loadingContainer}>
+              <div className={styles.spinner}></div>
+              <p className={styles.loadingText}>Memuat data laporan...</p>
             </div>
+          ) : absensi.length === 0 ? (
+            <div className={styles.emptyContainer}>
+              <div className={styles.emptyIcon}>📭</div>
+              <p className={styles.emptyTitle}>Tidak Ada Data</p>
+              <p className={styles.emptyText}>
+                Tidak ada data untuk periode yang dipilih
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table */}
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Tanggal</th>
+                      <th>Nama</th>
+                      <th>Check In</th>
+                      <th>Check Out</th>
+                      <th>Durasi</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentData.map((item) => (
+                      <tr key={item._id} className={styles.tableRow}>
+                        <td data-label="Tanggal">
+                          {format(new Date(item.tanggal), 'dd MMM yyyy', {
+                            locale: id,
+                          })}
+                        </td>
+                        <td data-label="Nama" className={styles.nameCell}>
+                          {item.userId?.name || 'N/A'}
+                        </td>
+                        <td data-label="Check In">
+                          {item.checkInTime
+                            ? format(new Date(item.checkInTime), 'HH:mm')
+                            : '—'}
+                        </td>
+                        <td data-label="Check Out">
+                          {item.checkOutTime
+                            ? format(new Date(item.checkOutTime), 'HH:mm')
+                            : '—'}
+                        </td>
+                        <td data-label="Durasi">
+                          {item.workDuration
+                            ? `${Math.floor(item.workDuration / 60)}h ${
+                                item.workDuration % 60
+                              }m`
+                            : '—'}
+                        </td>
+                        <td data-label="Status">
+                          <span
+                            className={styles.statusBadge}
+                            style={{
+                              backgroundColor: getStatusBgColor(item.status),
+                              color: getStatusColor(item.status),
+                            }}
+                          >
+                            {item.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Page Size Selector */}
+              <div className={styles.pageSizeContainer}>
+                <label htmlFor="pageSize" className={styles.pageSizeLabel}>
+                  Data per halaman:
+                </label>
+                <select
+                  id="pageSize"
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    setItemsPerPage(Number(e.target.value));
+                    setCurrentPage(1); // Reset to first page when changing page size
+                  }}
+                  className={styles.pageSizeSelect}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className={styles.paginationContainer}>
+                  <button
+                    className={styles.paginationBtn}
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    title="Halaman pertama"
+                  >
+                    «
+                  </button>
+                  <button
+                    className={styles.paginationBtn}
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    title="Halaman sebelumnya"
+                  >
+                    ‹
+                  </button>
+
+                  {startPage > 1 && (
+                    <>
+                      <button
+                        className={styles.paginationBtn}
+                        onClick={() => setCurrentPage(1)}
+                      >
+                        1
+                      </button>
+                      {startPage > 2 && (
+                        <span className={styles.paginationEllipsis}>...</span>
+                      )}
+                    </>
+                  )}
+
+                  {paginationPages.map((page) => (
+                    <button
+                      key={page}
+                      className={`${styles.paginationBtn} ${
+                        page === currentPage ? styles.paginationBtnActive : ''
+                      }`}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  {endPage < totalPages && (
+                    <>
+                      {endPage < totalPages - 1 && (
+                        <span className={styles.paginationEllipsis}>...</span>
+                      )}
+                      <button
+                        className={styles.paginationBtn}
+                        onClick={() => setCurrentPage(totalPages)}
+                      >
+                        {totalPages}
+                      </button>
+                    </>
+                  )}
+
+                  <button
+                    className={styles.paginationBtn}
+                    onClick={() =>
+                      setCurrentPage(Math.min(totalPages, currentPage + 1))
+                    }
+                    disabled={currentPage === totalPages}
+                    title="Halaman berikutnya"
+                  >
+                    ›
+                  </button>
+                  <button
+                    className={styles.paginationBtn}
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    title="Halaman terakhir"
+                  >
+                    »
+                  </button>
+
+                  <div className={styles.paginationInfo}>
+                    Halaman {currentPage} dari {totalPages} ({absensi.length}{' '}
+                    data)
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
+        </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }
 

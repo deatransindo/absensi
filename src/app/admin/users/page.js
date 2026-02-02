@@ -2,21 +2,32 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
+import PageLayout from '@/components/PageLayout';
+import UsersTable from '@/components/UsersTable';
+import { useUsers, useDeleteUser, useUpdateUser } from '@/hooks/useUsers';
+import { useAutoLogout } from '@/hooks/useAutoLogout';
 import toast, { Toaster } from 'react-hot-toast';
 import styles from '@/styles/AdminUsers.module.css';
 
 export default function UsersManagementPage() {
   const router = useRouter();
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     password: '',
   });
+
+  // Auto logout after 30 minutes
+  useAutoLogout();
+
+  // TanStack Query hooks
+  const { data: users = [], isLoading, error } = useUsers(token);
+  const deleteUserMutation = useDeleteUser(token);
+  const updateUserMutation = useUpdateUser(token);
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -31,28 +42,9 @@ export default function UsersManagementPage() {
       return;
     }
 
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/admin/users', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch');
-
-      const data = await response.json();
-      setUsers(data.users);
-    } catch (error) {
-      toast.error('Gagal memuat data user');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const storedToken = localStorage.getItem('token');
+    setToken(storedToken);
+  }, [router]);
 
   const handleAddUser = async (e) => {
     e.preventDefault();
@@ -83,54 +75,34 @@ export default function UsersManagementPage() {
     }
   };
 
-  const toggleUserStatus = async (userId, currentStatus) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ isActive: !currentStatus }),
-      });
-
-      if (!response.ok) throw new Error('Failed to update');
-
-      toast.success('Status user berhasil diubah');
-      fetchUsers();
-    } catch (error) {
-      toast.error('Gagal mengubah status user');
-    }
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+    setFormData({
+      name: user.nama || user.name,
+      email: user.email,
+      phone: user.phone || '',
+      password: '',
+    });
+    setShowModal(true);
   };
 
-  const deleteUser = async (userId) => {
-    if (!confirm('Yakin ingin menghapus user ini?')) return;
+  const handleDeleteUser = async (user) => {
+    if (!confirm(`Yakin ingin menghapus user ${user.nama || user.name}?`)) return;
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) throw new Error('Failed to delete');
-
+      await deleteUserMutation.mutateAsync(user._id);
       toast.success('User berhasil dihapus');
-      fetchUsers();
     } catch (error) {
       toast.error('Gagal menghapus user');
     }
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <Toaster position="top-center" />
-      <Navbar />
+    <PageLayout>
+      <div className={styles.pageContainer}>
+        <Toaster position="top-center" />
 
-      <div className={styles.contentContainer}>
+        <div className={styles.contentContainer}>
         <div className={styles.headerSection}>
           <h1 className={styles.headerTitle}>User Management</h1>
           <button onClick={() => setShowModal(true)} className={styles.addBtn}>
@@ -138,155 +110,105 @@ export default function UsersManagementPage() {
           </button>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className={styles.loading}>Loading...</div>
+        ) : error ? (
+          <div className={styles.error}>Gagal memuat data user</div>
+        ) : users.length === 0 ? (
+          <div className={styles.emptyState}>Belum ada user terdaftar</div>
         ) : (
-          <div className={styles.tableContainer}>
-            <div className={styles.tableWrapper}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Nama</th>
-                    <th>Email</th>
-                    <th>Telepon</th>
-                    <th>Absensi</th>
-                    <th>Kunjungan</th>
-                    <th>Status</th>
-                    <th>Delete</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user._id}>
-                      <td className={styles.nameCell}>{user.name}</td>
-                      <td>{user.email}</td>
-                      <td>{user.phone || '-'}</td>
-                      <td className={styles.centerCell}>
-                        {user._count.absensi}
-                      </td>
-                      <td className={styles.centerCell}>
-                        {user._count.visits}
-                      </td>
-                      <td className={styles.centerCell}>
-                        <button
-                          onClick={() =>
-                            toggleUserStatus(user._id, user.isActive)
-                          }
-                          className={
-                            user.isActive
-                              ? styles.badgeActive
-                              : styles.badgeInactive
-                          }
-                        >
-                          {user.isActive ? 'Aktif' : 'Non-Aktif'}
-                        </button>
-                      </td>
-                      <td className={styles.centerCell}>
-                        <button
-                          onClick={() => deleteUser(user._id)}
-                          className={styles.deleteBtn}
-                        >
-                          Hapus
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <UsersTable
+            users={users}
+            onEdit={handleEditUser}
+            onDelete={handleDeleteUser}
+          />
+        )}
+      </div>
 
-              {users.length === 0 && (
-                <p className={styles.emptyState}>
-                  Belum ada karyawan terdaftar
-                </p>
-              )}
+        {/* Add User Modal */}
+        {showModal && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+              <h2 className={styles.modalTitle}>Tambah User Baru</h2>
+
+              <form onSubmit={handleAddUser}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Nama Lengkap</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    className={styles.input}
+                    required
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Email</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    className={styles.input}
+                    required
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Nomor HP</label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    className={styles.input}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Password</label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                    className={styles.input}
+                    required
+                    minLength={6}
+                  />
+                </div>
+
+                <div className={styles.buttonGroup}>
+                  <button type="submit" className={styles.submitBtn}>
+                    Tambah
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowModal(false);
+                      setFormData({
+                        name: '',
+                        email: '',
+                        phone: '',
+                        password: '',
+                      });
+                    }}
+                    className={styles.cancelBtn}
+                  >
+                    Batal
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
       </div>
-
-      {/* Add User Modal */}
-      {showModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <h2 className={styles.modalTitle}>Tambah User Baru</h2>
-
-            <form onSubmit={handleAddUser}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Nama Lengkap</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className={styles.input}
-                  required
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Email</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className={styles.input}
-                  required
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Nomor HP</label>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Password</label>
-                <input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  className={styles.input}
-                  required
-                  minLength={6}
-                />
-              </div>
-
-              <div className={styles.buttonGroup}>
-                <button type="submit" className={styles.submitBtn}>
-                  Tambah
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    setFormData({
-                      name: '',
-                      email: '',
-                      phone: '',
-                      password: '',
-                    });
-                  }}
-                  className={styles.cancelBtn}
-                >
-                  Batal
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+    </PageLayout>
   );
 }

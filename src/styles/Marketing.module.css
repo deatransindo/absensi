@@ -1,78 +1,172 @@
+/* ==================== USER DASHBOARD - MODERN DESIGN ==================== */
+
 .pageContainer {
   min-height: 100vh;
-  background-color: #f3f4f6;
+  min-height: 100dvh;
+  background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #fdf2f8 100%);
 }
 
 .contentContainer {
-  max-width: 64rem;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1.5rem;
+  animation: fadeIn 0.5s ease-out;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==================== LOADING STATE ==================== */
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  color: #6b7280;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.loading::before {
+  content: '';
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== HEADER ==================== */
+
 .header {
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  padding: 1.75rem;
   margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  animation: slideDown 0.5s ease-out;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2, #f472b6);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .headerTitle {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+  font-size: clamp(1.35rem, 4vw, 1.75rem);
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
   color: #1f2937;
+  letter-spacing: -0.5px;
 }
 
 .headerDate {
   color: #6b7280;
   margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-.loading {
-  text-align: center;
-  padding: 3rem 0;
-  color: #6b7280;
-}
+/* ==================== ABSENSI CONTAINER ==================== */
 
 .absensiContainer {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
+/* ==================== SUCCESS ALERT (Check-in Done) ==================== */
+
 .successAlert {
-  background-color: #d1fae5;
-  border: 1px solid #6ee7b7;
-  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  border: none;
+  border-radius: 16px;
   padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  animation: cardFadeIn 0.5s ease-out 0.1s backwards;
+}
+
+.successAlert::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #10b981, #059669);
+  border-radius: 4px 0 0 4px;
+}
+
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .successText {
   color: #065f46;
-  font-weight: 500;
-  font-size: 1.125rem;
-  margin: 0 0 0.25rem 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0 0 0.375rem 0;
 }
 
 .successTime {
   color: #047857;
   font-size: 0.875rem;
   margin: 0;
+  font-weight: 500;
 }
 
+/* ==================== COMPLETED ALERT (All Done) ==================== */
+
 .completedAlert {
-  background-color: #dbeafe;
-  border: 1px solid #93c5fd;
-  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  border: none;
+  border-radius: 16px;
   padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  animation: cardFadeIn 0.5s ease-out 0.15s backwards;
+}
+
+.completedAlert::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+  border-radius: 4px 0 0 4px;
 }
 
 .completedTitle {
   color: #1e40af;
-  font-weight: 500;
-  font-size: 1.125rem;
-  margin: 0 0 0.75rem 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0 0 1rem 0;
 }
 
 .completedInfo {
@@ -85,7 +179,10 @@
   color: #1e3a8a;
   font-size: 0.875rem;
   margin: 0;
+  font-weight: 500;
 }
+
+/* ==================== MENU GRID ==================== */
 
 .menuGrid {
   margin-top: 1.5rem;
@@ -95,38 +192,255 @@
 }
 
 .menuCard {
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  padding: 1.75rem 1.25rem;
   text-align: center;
   text-decoration: none;
-  transition: box-shadow 0.2s;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.menuCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.menuCard:hover::before {
+  opacity: 1;
 }
 
 .menuCard:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
+  border-color: rgba(102, 126, 234, 0.2);
+}
+
+.menuCard:active {
+  transform: translateY(-2px);
 }
 
 .menuIcon {
-  font-size: 3rem;
-  margin-bottom: 0.5rem;
+  font-size: 2.5rem;
+  margin-bottom: 0.25rem;
+  transition: transform 0.3s ease;
+}
+
+.menuCard:hover .menuIcon {
+  transform: scale(1.1);
 }
 
 .menuTitle {
-  font-weight: 500;
+  font-weight: 700;
+  font-size: 0.95rem;
   color: #1f2937;
   margin: 0;
+  position: relative;
+  z-index: 1;
 }
 
+/* ==================== PRIMARY BUTTON ==================== */
+
 .primaryBtn {
-  padding: 0.5rem;
-  border-color: #ffffff;
-  display: flex;
-  margin-bottom: 0.5rem;
-  margin-top: 0.5rem;
   width: 100%;
-  display: flex;
-  background-color: #2563eb;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.primaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.primaryBtn:active {
+  transform: translateY(0);
+}
+
+.primaryBtn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* ==================== RESPONSIVE - TABLET ==================== */
+
+@media (max-width: 768px) {
+  .contentContainer {
+    padding: 1rem;
+  }
+
+  .header {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .headerTitle {
+    font-size: 1.35rem;
+  }
+
+  .successAlert,
+  .completedAlert {
+    padding: 1.25rem;
+    border-radius: 14px;
+  }
+
+  .menuGrid {
+    gap: 0.875rem;
+  }
+
+  .menuCard {
+    padding: 1.5rem 1rem;
+    border-radius: 16px;
+  }
+
+  .menuIcon {
+    font-size: 2.25rem;
+  }
+
+  .menuTitle {
+    font-size: 0.875rem;
+  }
+}
+
+/* ==================== RESPONSIVE - MOBILE ==================== */
+
+@media (max-width: 480px) {
+  .contentContainer {
+    padding: 0.75rem;
+  }
+
+  .header {
+    padding: 1.25rem;
+    border-radius: 14px;
+    margin-bottom: 1.25rem;
+  }
+
+  .headerTitle {
+    font-size: 1.25rem;
+  }
+
+  .headerDate {
+    font-size: 0.825rem;
+  }
+
+  .absensiContainer {
+    gap: 1rem;
+  }
+
+  .successAlert,
+  .completedAlert {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .successText,
+  .completedTitle {
+    font-size: 1rem;
+  }
+
+  .successTime,
+  .completedInfo p {
+    font-size: 0.8rem;
+  }
+
+  .menuGrid {
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+
+  .menuCard {
+    padding: 1.25rem 0.875rem;
+    border-radius: 14px;
+  }
+
+  .menuIcon {
+    font-size: 2rem;
+  }
+
+  .menuTitle {
+    font-size: 0.8rem;
+  }
+
+  .primaryBtn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    border-radius: 10px;
+  }
+}
+
+/* ==================== RESPONSIVE - EXTRA SMALL ==================== */
+
+@media (max-width: 360px) {
+  .header {
+    padding: 1rem;
+  }
+
+  .headerTitle {
+    font-size: 1.125rem;
+  }
+
+  .menuCard {
+    padding: 1rem 0.75rem;
+  }
+
+  .menuIcon {
+    font-size: 1.75rem;
+  }
+
+  .menuTitle {
+    font-size: 0.75rem;
+  }
+}
+
+/* ==================== SAFE AREA ==================== */
+
+@supports (padding: max(0px)) {
+  .contentContainer {
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .successAlert,
+  .completedAlert,
+  .menuCard {
+    animation: none;
+  }
+
+  .menuCard:hover {
+    transform: none;
+  }
 }

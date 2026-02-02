@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/**)",
+      "Bash(npm install:*)",
+      "Bash(npx web-push:*)",
+      "Bash(test:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm run build:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

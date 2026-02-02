@@ -183,9 +183,6 @@ export default function RegisterPage() {
         <div className={styles.decorBottom}></div>
       </div>
 
-      <div className={styles.appInfo}>
-        <p>@deatranssolusindo v1.0</p>
-      </div>
     </div>
   );
 }

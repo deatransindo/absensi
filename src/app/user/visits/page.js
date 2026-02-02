@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
+import PageLayout from '@/components/PageLayout';
 import LocationCapture from '@/components/LocationCapture';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -114,11 +114,11 @@ export default function VisitsPage() {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <Toaster position="top-center" />
-      <Navbar />
+    <PageLayout>
+      <div className={styles.pageContainer}>
+        <Toaster position="top-center" />
 
-      <div className={styles.contentContainer}>
+        <div className={styles.contentContainer}>
         <div className={styles.headerSection}>
           <div>
             <h1 className={styles.headerTitle}>Customer Visit</h1>
@@ -314,6 +314,7 @@ export default function VisitsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </PageLayout>
   );
 }

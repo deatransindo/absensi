@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
+import { setLoginTime } from '@/hooks/useAutoLogout';
 import styles from '@/styles/Login.module.css';
 import Image from 'next/image';
 
@@ -12,6 +13,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Prevent back button to login when already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+
+    if (token && user) {
+      const userData = JSON.parse(user);
+      // User is already logged in, redirect to their dashboard
+      if (userData.role === 'ADMIN') {
+        router.replace('/admin');
+      } else {
+        router.replace('/user');
+      }
+    }
+  }, [router]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -33,13 +50,16 @@ export default function LoginPage() {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
+      // Set login time for auto logout
+      setLoginTime();
+
       toast.success('Login berhasil!');
 
       setTimeout(() => {
         if (data.user.role === 'ADMIN') {
-          router.push('/admin');
+          router.replace('/admin');
         } else {
-          router.push('/user');
+          router.replace('/user');
         }
       }, 500);
     } catch (error) {
@@ -67,10 +87,10 @@ export default function LoginPage() {
             <Image
               src="/Images/logo_dea.png"
               alt="Logo"
-              width={100}
-              height={100}
+              width={120}
+              height={120}
               priority
-              style={{ width: '200%', height: 'auto' }}
+              style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
             />
           </div>
         </div>

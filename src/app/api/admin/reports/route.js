@@ -39,8 +39,10 @@ export async function GET(request) {
     const userId = searchParams.get('userId');
     const month = searchParams.get('month');
     const year = searchParams.get('year');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
 
-    console.log('📊 Filters:', { userId, month, year });
+    console.log('📊 Filters:', { userId, month, year, startDate, endDate });
 
     const query = {};
 
@@ -48,10 +50,23 @@ export async function GET(request) {
       query.userId = userId;
     }
 
-    if (month && year) {
-      const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
-      const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
-      query.tanggal = { $gte: startDate, $lte: endDate };
+    // Handle date range or month/year filtering
+    if (startDate && endDate) {
+      // Date range mode
+      const rangeStart = new Date(startDate);
+      rangeStart.setHours(0, 0, 0, 0);
+
+      const rangeEnd = new Date(endDate);
+      rangeEnd.setHours(23, 59, 59, 999);
+
+      query.tanggal = { $gte: rangeStart, $lte: rangeEnd };
+      console.log('📅 Date range filter:', { from: rangeStart, to: rangeEnd });
+    } else if (month && year) {
+      // Month/Year mode
+      const monthStart = new Date(parseInt(year), parseInt(month) - 1, 1);
+      const monthEnd = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
+      query.tanggal = { $gte: monthStart, $lte: monthEnd };
+      console.log('📅 Month/Year filter:', { month, year });
     }
 
     const absensiData = await Absensi.find(query)

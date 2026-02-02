@@ -10,16 +10,20 @@
     "create:admin": "node scripts/create-admin.js"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.5",
+    "@tanstack/react-table": "^8.21.3",
     "bcryptjs": "^2.4.3",
     "date-fns": "^3.0.0",
     "dotenv": "^17.2.3",
+    "exceljs": "^4.4.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.546.0",
     "mongoose": "^8.0.0",
-    "next": "14.0.4",
+    "next": "^16.1.0-canary.12",
     "react": "^18",
     "react-dom": "^18",
-    "react-hot-toast": "^2.4.1"
+    "react-hot-toast": "^2.4.1",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

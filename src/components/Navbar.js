@@ -3,10 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import styles from '@/styles/Navbar.module.css';
-import Link from 'next/link';
 import Image from 'next/image';
 
-export default function Navbar() {
+export default function Navbar({ onMenuToggle }) {
   const router = useRouter();
   const [user, setUser] = useState(null);
 
@@ -27,13 +26,31 @@ export default function Navbar() {
     <nav className={styles.navbar}>
       <div className={styles.container}>
         <div className={styles.content}>
-          <Image
-            src="/Images/logo_dea2.png"
-            alt="reports"
-            width={140}
-            height={50}
-            priority
-          />
+          {/* Hamburger Menu Button */}
+          <button
+            className={styles.menuBtn}
+            onClick={onMenuToggle}
+            aria-label="Toggle menu"
+          >
+            <span className={styles.hamburger}>
+              <span className={styles.hamburgerLine}></span>
+              <span className={styles.hamburgerLine}></span>
+              <span className={styles.hamburgerLine}></span>
+            </span>
+          </button>
+
+          {/* Logo - Hidden on desktop when sidebar is visible */}
+          <div className={styles.logoWrapper}>
+            <Image
+              src="/Images/logo_dea2.png"
+              alt="Logo"
+              width={120}
+              height={40}
+              priority
+              className={styles.logo}
+            />
+          </div>
+
           <div className={styles.rightSection}>
             {user && (
               <>
