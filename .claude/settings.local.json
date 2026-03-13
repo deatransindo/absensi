@@ -7,7 +7,11 @@
       "Bash(test:*)",
       "Bash(git checkout:*)",
       "Bash(npm run build:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "Bash(/d/BACKUP WEBSITE/absensi/src/styles/Sidebar.module.css:*)",
+      "Bash(/d/BACKUP WEBSITE/absensi/src/styles/Navbar.module.css:*)",
+      "Bash(/d/BACKUP WEBSITE/absensi/src/styles/LocationCapture.module.css:*)",
+      "Bash(/d/BACKUP WEBSITE/absensi/src/styles/History.module.css:*)"
     ],
     "deny": [],
     "ask": []

@@ -9,7 +9,10 @@ import { useNotifications } from '@/hooks/useNotifications';
 import toast, { Toaster } from 'react-hot-toast';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import Image from 'next/image';
+import {
+  History, MapPin, Bell, CheckCircle2,
+  LogIn, LogOut, Clock, Timer, X
+} from 'lucide-react';
 import styles from '@/styles/Marketing.module.css';
 
 export default function UserDashboard() {
@@ -18,10 +21,8 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
 
-  // Auto logout after 30 minutes
   useAutoLogout();
 
-  // Notification hook
   const {
     permission,
     isSupported,
@@ -33,32 +34,22 @@ export default function UserDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
+    if (!token) { router.push('/login'); return; }
     fetchTodayAbsensi();
     checkNotificationStatus();
   }, []);
 
   const checkNotificationStatus = async () => {
     if (!isSupported) return;
-
     const existingSubscription = await checkSubscription();
-
-    // Tampilkan prompt jika browser support dan belum ada subscription
     if (!existingSubscription && permission === 'default') {
-      // Tunggu 2 detik sebelum menampilkan prompt agar tidak mengganggu
-      setTimeout(() => {
-        setShowNotificationPrompt(true);
-      }, 2000);
+      setTimeout(() => setShowNotificationPrompt(true), 2000);
     }
   };
 
   const handleEnableNotifications = async () => {
     try {
       const result = await requestPermission();
-
       if (result === 'granted') {
         await subscribe();
         toast.success('Notifikasi berhasil diaktifkan!');
@@ -68,30 +59,17 @@ export default function UserDashboard() {
         setShowNotificationPrompt(false);
       }
     } catch (error) {
-      console.error('Error enabling notifications:', error);
       toast.error('Gagal mengaktifkan notifikasi');
     }
-  };
-
-  const handleDismissNotification = () => {
-    setShowNotificationPrompt(false);
-    // Simpan di localStorage agar tidak muncul lagi untuk sementara
-    localStorage.setItem('notificationPromptDismissed', Date.now().toString());
   };
 
   const fetchTodayAbsensi = async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('/api/absensi/today', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch');
-      }
-
+      if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setTodayAbsensi(data.absensi);
     } catch (error) {
@@ -108,10 +86,11 @@ export default function UserDashboard() {
     <PageLayout>
       <div className={styles.pageContainer}>
         <Toaster position="top-center" />
-
         <div className={styles.contentContainer}>
+
+          {/* Header */}
           <div className={styles.header}>
-            <h2 className={styles.headerTitle}>Dashboard User</h2>
+            <h2 className={styles.headerTitle}>Dashboard</h2>
             <p className={styles.headerDate}>
               {format(new Date(), 'EEEE, dd MMMM yyyy', { locale: id })}
             </p>
@@ -120,35 +99,41 @@ export default function UserDashboard() {
           {/* Notification Prompt */}
           {showNotificationPrompt && (
             <div className={styles.notificationPrompt}>
-              <div className={styles.notificationContent}>
-                <p className={styles.notificationTitle}>
-                  Aktifkan Notifikasi
-                </p>
-                <p className={styles.notificationText}>
-                  Dapatkan pengingat untuk check-in dan check-out langsung di
-                  layar HP Anda
-                </p>
-                <div className={styles.notificationButtons}>
-                  <button
-                    onClick={handleEnableNotifications}
-                    className={styles.notificationEnableBtn}
-                    disabled={notificationLoading}
-                  >
-                    {notificationLoading ? 'Mengaktifkan...' : 'Aktifkan'}
-                  </button>
-                  <button
-                    onClick={handleDismissNotification}
-                    className={styles.notificationDismissBtn}
-                  >
-                    Nanti Saja
-                  </button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
+                  <Bell size={15} style={{ color: '#6366f1' }} />
+                  <p className={styles.notificationTitle}>Aktifkan Notifikasi</p>
                 </div>
+                <button
+                  onClick={() => {
+                    setShowNotificationPrompt(false);
+                    localStorage.setItem('notificationPromptDismissed', Date.now().toString());
+                  }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '2px' }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              <p className={styles.notificationText}>
+                Dapatkan pengingat check-in & check-out langsung di HP Anda
+              </p>
+              <div className={styles.notificationButtons}>
+                <button onClick={handleEnableNotifications} className={styles.notificationEnableBtn} disabled={notificationLoading}>
+                  {notificationLoading ? 'Mengaktifkan...' : 'Aktifkan'}
+                </button>
+                <button onClick={() => {
+                  setShowNotificationPrompt(false);
+                  localStorage.setItem('notificationPromptDismissed', Date.now().toString());
+                }} className={styles.notificationDismissBtn}>
+                  Nanti
+                </button>
               </div>
             </div>
           )}
 
+          {/* Main content */}
           {loading ? (
-            <div className={styles.loading}>Loading...</div>
+            <div className={styles.loading} />
           ) : (
             <>
               {!hasCheckedIn && (
@@ -158,36 +143,34 @@ export default function UserDashboard() {
               {hasCheckedIn && !hasCheckedOut && (
                 <div className={styles.absensiContainer}>
                   <div className={styles.successAlert}>
-                    <p className={styles.successText}>
-                      Anda sudah check-in hari ini
-                    </p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '4px' }}>
+                      <CheckCircle2 size={16} style={{ color: '#10b981', flexShrink: 0 }} />
+                      <p className={styles.successText}>Sudah Check-in hari ini</p>
+                    </div>
                     <p className={styles.successTime}>
-                      Check-in:{' '}
-                      {format(new Date(todayAbsensi.checkInTime), 'HH:mm')}
+                      <Clock size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                      Check-in: {format(new Date(todayAbsensi.checkInTime), 'HH:mm')}
                     </p>
                   </div>
-
                   <AbsenButton type="checkout" onSuccess={fetchTodayAbsensi} />
                 </div>
               )}
 
               {hasCheckedOut && (
                 <div className={styles.completedAlert}>
-                  <p className={styles.completedTitle}>
-                    Absensi hari ini sudah lengkap
-                  </p>
+                  <p className={styles.completedTitle}>Absensi Hari Ini Lengkap</p>
                   <div className={styles.completedInfo}>
                     <p>
-                      Check-in:{' '}
-                      {format(new Date(todayAbsensi.checkInTime), 'HH:mm')}
+                      <LogIn size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                      Check-in: {format(new Date(todayAbsensi.checkInTime), 'HH:mm')}
                     </p>
                     <p>
-                      Check-out:{' '}
-                      {format(new Date(todayAbsensi.checkOutTime), 'HH:mm')}
+                      <LogOut size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                      Check-out: {format(new Date(todayAbsensi.checkOutTime), 'HH:mm')}
                     </p>
                     <p>
-                      Durasi kerja: {Math.floor(todayAbsensi.workDuration / 60)}{' '}
-                      jam {todayAbsensi.workDuration % 60} menit
+                      <Timer size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                      Durasi: {Math.floor(todayAbsensi.workDuration / 60)}j {todayAbsensi.workDuration % 60}m
                     </p>
                   </div>
                 </div>
@@ -195,28 +178,18 @@ export default function UserDashboard() {
             </>
           )}
 
+          {/* Quick menu */}
           <div className={styles.menuGrid}>
             <a href="/user/history" className={styles.menuCard}>
-              <Image
-                src="/Icons/history.svg"
-                alt="history"
-                width={100}
-                height={100}
-                priority
-              />
+              <History size={36} strokeWidth={1.5} style={{ color: '#6366f1' }} />
               <p className={styles.menuTitle}>Riwayat Absensi</p>
             </a>
             <a href="/user/visits" className={styles.menuCard}>
-              <Image
-                src="/Icons/visit.svg"
-                alt="visit"
-                width={100}
-                height={100}
-                priority
-              />
+              <MapPin size={36} strokeWidth={1.5} style={{ color: '#10b981' }} />
               <p className={styles.menuTitle}>Kunjungan</p>
             </a>
           </div>
+
         </div>
       </div>
     </PageLayout>

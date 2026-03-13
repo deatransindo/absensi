@@ -4,6 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import {
+  LayoutDashboard, FileText, Users, Bell,
+  History, MapPin, LogOut, X, ChevronRight,
+  ShieldCheck, User
+} from 'lucide-react';
 import styles from '@/styles/Sidebar.module.css';
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -13,9 +18,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
+    if (userData) setUser(JSON.parse(userData));
   }, []);
 
   const handleLogout = () => {
@@ -27,86 +30,39 @@ export default function Sidebar({ isOpen, onClose }) {
   const isAdmin = user?.role === 'ADMIN';
 
   const adminMenuItems = [
-    {
-      href: '/admin',
-      icon: '/Icons/dashboard.svg',
-      fallbackIcon: '📊',
-      label: 'Dashboard',
-    },
-    {
-      href: '/admin/reports',
-      icon: '/Icons/reports.svg',
-      fallbackIcon: '📋',
-      label: 'Laporan',
-    },
-    {
-      href: '/admin/users',
-      icon: '/Icons/user_management.svg',
-      fallbackIcon: '👥',
-      label: 'Kelola User',
-    },
-    {
-      href: '/admin/notifications',
-      icon: '/Icons/notification.svg',
-      fallbackIcon: '🔔',
-      label: 'Notifikasi',
-    },
+    { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', color: '#6366f1' },
+    { href: '/admin/reports', icon: FileText, label: 'Laporan', color: '#8b5cf6' },
+    { href: '/admin/users', icon: Users, label: 'Kelola User', color: '#06b6d4' },
+    { href: '/admin/notifications', icon: Bell, label: 'Notifikasi', color: '#f59e0b' },
   ];
 
   const userMenuItems = [
-    {
-      href: '/user',
-      icon: '/Icons/dashboard.svg',
-      fallbackIcon: '🏠',
-      label: 'Dashboard',
-    },
-    {
-      href: '/user/history',
-      icon: '/Icons/history.svg',
-      fallbackIcon: '📅',
-      label: 'Riwayat Absensi',
-    },
-    {
-      href: '/user/visits',
-      icon: '/Icons/visit.svg',
-      fallbackIcon: '📍',
-      label: 'Kunjungan',
-    },
+    { href: '/user', icon: LayoutDashboard, label: 'Dashboard', color: '#6366f1' },
+    { href: '/user/history', icon: History, label: 'Riwayat Absensi', color: '#8b5cf6' },
+    { href: '/user/visits', icon: MapPin, label: 'Kunjungan', color: '#10b981' },
   ];
 
   const menuItems = isAdmin ? adminMenuItems : userMenuItems;
 
   const isActive = (href) => {
-    if (href === '/admin' || href === '/user') {
-      return pathname === href;
-    }
+    if (href === '/admin' || href === '/user') return pathname === href;
     return pathname.startsWith(href);
   };
 
   return (
     <>
-      {/* Overlay for mobile */}
       <div
         className={`${styles.overlay} ${isOpen ? styles.overlayVisible : ''}`}
         onClick={onClose}
       />
-
-      {/* Sidebar */}
       <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
         {/* Header */}
         <div className={styles.sidebarHeader}>
           <div className={styles.logoContainer}>
-            <Image
-              src="/Images/logo_dea2.png"
-              alt="Logo"
-              width={120}
-              height={40}
-              priority
-              className={styles.logo}
-            />
+            <Image src="/Images/logo_dea2.png" alt="Logo" width={110} height={36} priority className={styles.logo} />
           </div>
-          <button className={styles.closeBtn} onClick={onClose}>
-            <span className={styles.closeIcon}>×</span>
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+            <X size={18} strokeWidth={2.5} />
           </button>
         </div>
 
@@ -119,7 +75,10 @@ export default function Sidebar({ isOpen, onClose }) {
             <div className={styles.userDetails}>
               <p className={styles.userName}>{user.name}</p>
               <span className={styles.userRole}>
-                {isAdmin ? 'Administrator' : 'User'}
+                {isAdmin
+                  ? <span className={styles.roleBadgeAdmin}><ShieldCheck size={10} /> Admin</span>
+                  : <span className={styles.roleBadgeUser}><User size={10} /> User</span>
+                }
               </span>
             </div>
           </div>
@@ -127,44 +86,38 @@ export default function Sidebar({ isOpen, onClose }) {
 
         {/* Navigation */}
         <nav className={styles.nav}>
+          <p className={styles.navLabel}>MENU</p>
           <ul className={styles.menuList}>
-            {menuItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={`${styles.menuItem} ${
-                    isActive(item.href) ? styles.menuItemActive : ''
-                  }`}
-                  onClick={onClose}
-                >
-                  <span className={styles.menuIcon}>
-                    <Image
-                      src={item.icon}
-                      alt={item.label}
-                      width={24}
-                      height={24}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'block';
-                      }}
-                    />
-                    <span style={{ display: 'none' }}>{item.fallbackIcon}</span>
-                  </span>
-                  <span className={styles.menuLabel}>{item.label}</span>
-                  {isActive(item.href) && (
-                    <span className={styles.activeIndicator} />
-                  )}
-                </Link>
-              </li>
-            ))}
+            {menuItems.map((item, i) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <li key={item.href} className={styles.menuLi} style={{ '--delay': `${i * 50}ms` }}>
+                  <Link
+                    href={item.href}
+                    className={`${styles.menuItem} ${active ? styles.menuItemActive : ''}`}
+                    onClick={onClose}
+                  >
+                    <span
+                      className={styles.menuIconWrap}
+                      style={{ '--icon-color': item.color }}
+                    >
+                      <Icon size={18} strokeWidth={2} />
+                    </span>
+                    <span className={styles.menuLabel}>{item.label}</span>
+                    {active && <ChevronRight size={14} className={styles.activeArrow} />}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 
         {/* Footer */}
         <div className={styles.sidebarFooter}>
           <button onClick={handleLogout} className={styles.logoutBtn}>
-            <span className={styles.logoutIcon}>🚪</span>
-            <span>Logout</span>
+            <LogOut size={16} strokeWidth={2} />
+            <span>Keluar</span>
           </button>
         </div>
       </aside>
