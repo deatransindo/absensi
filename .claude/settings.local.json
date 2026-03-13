@@ -6,7 +6,8 @@
       "Bash(npx web-push:*)",
       "Bash(test:*)",
       "Bash(git checkout:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(node -e:*)"
     ],
     "deny": [],
     "ask": []

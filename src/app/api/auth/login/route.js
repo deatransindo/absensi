@@ -33,10 +33,7 @@ export async function POST(request) {
     }
 
     console.log('🔑 Comparing password...');
-    
-    // Gunakan bcrypt langsung sebagai fallback
-    const bcrypt = require('bcryptjs');
-    const isValid = await bcrypt.compare(password, user.password);
+    const isValid = await comparePassword(password, user.password);
     
     console.log('Password valid:', isValid);
 

@@ -52,6 +52,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Copy env file so runtime can read MONGODB_URI, JWT_SECRET, etc.
+COPY --from=builder --chown=nextjs:nodejs /app/.env.production ./.env.production
+
 USER nextjs
 
 EXPOSE 3000
