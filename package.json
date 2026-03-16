@@ -10,7 +10,7 @@
     "create:admin": "node scripts/create-admin.js"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.90.5",
+    "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-table": "^8.21.3",
     "bcryptjs": "^2.4.3",
     "date-fns": "^3.0.0",

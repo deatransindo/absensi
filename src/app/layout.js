@@ -18,7 +18,7 @@ export const metadata = {
     ],
   },
 
-  manifest: '/manifest.json',
+  manifest: '/site.webmanifest',
 };
 
 // ⚠️ VIEWPORT - Export terpisah (Next.js 14+ requirement)
