@@ -16,6 +16,8 @@ function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [editModal, setEditModal] = useState({ open: false, item: null, checkIn: '', checkOut: '', status: '' });
+  const [saving, setSaving] = useState(false);
 
   const [filterMode, setFilterMode] = useState('monthYear'); // 'monthYear' or 'dateRange'
   const [filters, setFilters] = useState({
@@ -117,6 +119,68 @@ function ReportsPage() {
       toast.error('Gagal memuat laporan');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openEdit = (item) => {
+    const toTimeInput = (dateStr) => {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    };
+    setEditModal({
+      open: true,
+      item,
+      checkIn: toTimeInput(item.checkInTime),
+      checkOut: toTimeInput(item.checkOutTime),
+      status: item.status,
+    });
+  };
+
+  const closeEdit = () => setEditModal({ open: false, item: null, checkIn: '', checkOut: '', status: '' });
+
+  const handleEditSave = async () => {
+    if (!editModal.item) return;
+    setSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      const item = editModal.item;
+
+      // Build full datetime from date + time input
+      const buildDateTime = (dateStr, timeStr) => {
+        if (!timeStr) return null;
+        const base = new Date(dateStr || item.tanggal);
+        const [h, m] = timeStr.split(':').map(Number);
+        base.setHours(h, m, 0, 0);
+        return base.toISOString();
+      };
+
+      const payload = {
+        checkInTime: buildDateTime(item.checkInTime || item.tanggal, editModal.checkIn),
+        checkOutTime: buildDateTime(item.checkOutTime || item.tanggal, editModal.checkOut),
+        status: editModal.status,
+      };
+
+      const res = await fetch(`/api/admin/absensi/${item._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      // Update local state
+      setAbsensi((prev) => prev.map((a) => (a._id === item._id ? data.absensi : a)));
+      toast.success('Data berhasil diperbarui');
+      closeEdit();
+    } catch (err) {
+      toast.error('Gagal menyimpan: ' + err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -496,6 +560,7 @@ function ReportsPage() {
                       <th>Check Out</th>
                       <th>Durasi</th>
                       <th>Status</th>
+                      <th>Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -536,6 +601,15 @@ function ReportsPage() {
                           >
                             {item.status}
                           </span>
+                        </td>
+                        <td data-label="Aksi">
+                          <button
+                            className={styles.editBtn}
+                            onClick={() => openEdit(item)}
+                            title="Edit waktu absensi"
+                          >
+                            ✏️ Edit
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -655,6 +729,67 @@ function ReportsPage() {
         </div>
         </div>
       </div>
+      {/* Edit Modal */}
+      {editModal.open && (
+        <div className={styles.modalOverlay} onClick={closeEdit}>
+          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>✏️ Edit Absensi</h2>
+              <button className={styles.modalClose} onClick={closeEdit}>✕</button>
+            </div>
+
+            <div className={styles.modalInfo}>
+              <span>📅 {editModal.item && format(new Date(editModal.item.tanggal), 'dd MMMM yyyy', { locale: id })}</span>
+              <span>👤 {editModal.item?.userId?.name || 'N/A'}</span>
+            </div>
+
+            <div className={styles.modalBody}>
+              <div className={styles.modalField}>
+                <label className={styles.modalLabel}>⏰ Waktu Check In</label>
+                <input
+                  type="time"
+                  value={editModal.checkIn}
+                  onChange={(e) => setEditModal((prev) => ({ ...prev, checkIn: e.target.value }))}
+                  className={styles.modalInput}
+                />
+              </div>
+
+              <div className={styles.modalField}>
+                <label className={styles.modalLabel}>⏰ Waktu Check Out</label>
+                <input
+                  type="time"
+                  value={editModal.checkOut}
+                  onChange={(e) => setEditModal((prev) => ({ ...prev, checkOut: e.target.value }))}
+                  className={styles.modalInput}
+                />
+              </div>
+
+              <div className={styles.modalField}>
+                <label className={styles.modalLabel}>📋 Status</label>
+                <select
+                  value={editModal.status}
+                  onChange={(e) => setEditModal((prev) => ({ ...prev, status: e.target.value }))}
+                  className={styles.modalInput}
+                >
+                  <option value="HADIR">HADIR</option>
+                  <option value="IZIN">IZIN</option>
+                  <option value="SAKIT">SAKIT</option>
+                  <option value="ALPHA">ALPHA</option>
+                </select>
+              </div>
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button className={styles.modalCancelBtn} onClick={closeEdit} disabled={saving}>
+                Batal
+              </button>
+              <button className={styles.modalSaveBtn} onClick={handleEditSave} disabled={saving}>
+                {saving ? '⏳ Menyimpan...' : '💾 Simpan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </PageLayout>
   );
 }
